@@ -1,6 +1,10 @@
 # As of 2018-06-29 https://github.com/aria2/aria2/blob/master/Dockerfile.raspberrypi, aria2 is build upon ubuntu trusty (which is debian 8). So pick a debian 8 as well
 FROM arm32v7/debian:8.11 AS aria2-builder
 
+RUN rm /etc/apt/sources.list
+RUN echo "deb http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
+
 # aria2 build
 RUN mkdir -p /builds && mkdir -p /builds/aria2c \
     && apt-get update \
