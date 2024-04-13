@@ -1,17 +1,12 @@
-# As of 2018-06-29 https://github.com/aria2/aria2/blob/master/Dockerfile.raspberrypi, aria2 is build upon ubuntu trusty (which is debian 8). So pick a debian 8 as well
-FROM arm32v7/debian:8.11 AS aria2-builder
+FROM debian:stable AS aria2-builder
 
 # aria2 build
-RUN rm /etc/apt/sources.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
-    && mkdir -p /builds && mkdir -p /builds/aria2c \
+RUN mkdir -p /builds && mkdir -p /builds/aria2c \
     && apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y curl git \
     make g++ libssl-dev nettle-dev libgmp-dev libssh2-1-dev libc-ares-dev libxml2-dev zlib1g-dev libsqlite3-dev pkg-config libxml2-dev libcppunit-dev autoconf automake autotools-dev autopoint libtool openssl \
-    && ARIA2_VERSION="1.34.0" \
+    && ARIA2_VERSION="1.35.0" \
     && mkdir aria_build && cd aria_build \
     && curl -L https://github.com/aria2/aria2/releases/download/release-"$ARIA2_VERSION"/aria2-"$ARIA2_VERSION".tar.gz > aria2.tar.gz \
     && tar -xzf aria2.tar.gz \
@@ -25,20 +20,14 @@ RUN rm /etc/apt/sources.list \
     && rm -rf /var/lib/apt/lists/*
 
 
-
-FROM arm32v7/golang:1.10.0-stretch AS go-builder
+FROM golang:1.17-buster AS go-builder
 
 # goreman build
 RUN mkdir -p /builds && mkdir -p /builds/goreman \
     && export GOPATH=`pwd` \
-    && go get github.com/mattn/goreman \
-    && go build -o /builds/goreman/goreman github.com/mattn/goreman
+    && go install github.com/mattn/goreman@latest
 
-RUN rm /etc/apt/sources.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
-    && mkdir -p /builds && mkdir -p /builds/gosu \
+RUN mkdir -p /builds && mkdir -p /builds/gosu \
     && apt-get update && apt-get install -y curl \
     && GITHUB_REPO="https://github.com/tianon/gosu" \
     && LATEST=`curl -s  $GITHUB_REPO"/releases/latest" | grep -Eo "[0-9].[0-9]*"` \
@@ -48,17 +37,10 @@ RUN rm /etc/apt/sources.list \
     && rm -rf /var/lib/apt/lists/*
 
 
-
-FROM arm32v7/httpd:2.4.33
-# BE CAREFULL the arm32v7/httpd image MUST match the version of debian used to build aria2. otherwise shared library versions might not be the same.
-# A better approach will be to build static version of aria2.
+FROM httpd
 
 # download aria2 dependendies
-RUN rm /etc/apt/sources.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
-    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
-    && apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update && apt-get install -y --no-install-recommends \
       busybox \
       ca-certificates \
       libc-ares2 \
@@ -71,7 +53,7 @@ RUN rm /etc/apt/sources.list \
 
 # Grab aria2c, goreman and gosu binaries
 COPY --from=aria2-builder /builds/aria2c/aria2c /usr/bin/
-COPY --from=go-builder /builds/goreman/goreman /usr/local/bin/
+COPY --from=go-builder /root/bin/goreman /usr/local/bin/
 COPY --from=go-builder /builds/gosu/gosu /usr/local/bin/
 
 ADD ./docs /webui-aria2
