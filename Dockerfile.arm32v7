@@ -24,14 +24,11 @@ FROM golang:1.17-buster AS go-builder
 
 # goreman build
 RUN mkdir -p /builds && mkdir -p /builds/goreman \
-    && export GOPATH=`pwd` \
-    && go install github.com/mattn/goreman@latest
+    && GOPATH=`pwd` go install github.com/mattn/goreman@latest
 
 RUN mkdir -p /builds && mkdir -p /builds/gosu \
     && apt-get update && apt-get install -y curl \
-    && GITHUB_REPO="https://github.com/tianon/gosu" \
-    && LATEST=`curl -s  $GITHUB_REPO"/releases/latest" | grep -Eo "[0-9].[0-9]*"` \
-    && curl -L $GITHUB_REPO"/releases/download/"$LATEST"/gosu-armhf" > /builds/gosu/gosu \
+    && LATEST=`curl -s  "https://github.com/tianon/gosu/releases/latest" | grep -Eo "[0-9].[0-9]*"` curl -L "https://github.com/tianon/gosu/releases/download/"$LATEST"/gosu-armhf" > /builds/gosu/gosu \
     && chmod +x /builds/gosu/gosu \
     && unset GITHUB_REPO && unset LATEST \
     && rm -rf /var/lib/apt/lists/*
@@ -53,7 +50,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Grab aria2c, goreman and gosu binaries
 COPY --from=aria2-builder /builds/aria2c/aria2c /usr/bin/
-COPY --from=go-builder /root/bin/goreman /usr/local/bin/
+COPY --from=go-builder /builds/goreman/bin/goreman /usr/local/bin/
 COPY --from=go-builder /builds/gosu/gosu /usr/local/bin/
 
 ADD ./docs /webui-aria2
