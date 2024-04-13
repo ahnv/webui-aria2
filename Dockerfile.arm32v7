@@ -1,13 +1,12 @@
 # As of 2018-06-29 https://github.com/aria2/aria2/blob/master/Dockerfile.raspberrypi, aria2 is build upon ubuntu trusty (which is debian 8). So pick a debian 8 as well
 FROM arm32v7/debian:8.11 AS aria2-builder
 
-RUN rm /etc/apt/sources.list
-RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list
-
 # aria2 build
-RUN mkdir -p /builds && mkdir -p /builds/aria2c \
+RUN rm /etc/apt/sources.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
+    && mkdir -p /builds && mkdir -p /builds/aria2c \
     && apt-get update \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y curl git \
@@ -29,17 +28,17 @@ RUN mkdir -p /builds && mkdir -p /builds/aria2c \
 
 FROM arm32v7/golang:1.10.0-stretch AS go-builder
 
-RUN rm /etc/apt/sources.list
-RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
-
 # goreman build
 RUN mkdir -p /builds && mkdir -p /builds/goreman \
     && export GOPATH=`pwd` \
     && go get github.com/mattn/goreman \
     && go build -o /builds/goreman/goreman github.com/mattn/goreman
 
-RUN mkdir -p /builds && mkdir -p /builds/gosu \
+RUN rm /etc/apt/sources.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
+    && mkdir -p /builds && mkdir -p /builds/gosu \
     && apt-get update && apt-get install -y curl \
     && GITHUB_REPO="https://github.com/tianon/gosu" \
     && LATEST=`curl -s  $GITHUB_REPO"/releases/latest" | grep -Eo "[0-9].[0-9]*"` \
@@ -59,7 +58,11 @@ RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/upd
 RUN echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
 
 # download aria2 dependendies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN rm /etc/apt/sources.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list \
+    && echo "deb [check-valid-until=no] http://archive.debian.org/debian jessie-backports main" >> /etc/apt/sources.list.d/jessie.list\
+    && apt-get update && apt-get install -y --no-install-recommends \
       busybox \
       ca-certificates \
       libc-ares2 \
