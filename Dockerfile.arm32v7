@@ -2,8 +2,8 @@
 FROM arm32v7/debian:8.11 AS aria2-builder
 
 RUN rm /etc/apt/sources.list
-RUN echo "deb http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
 
 # aria2 build
 RUN mkdir -p /builds && mkdir -p /builds/aria2c \
@@ -29,8 +29,8 @@ RUN mkdir -p /builds && mkdir -p /builds/aria2c \
 FROM arm32v7/golang:1.10.0-stretch AS go-builder
 
 RUN rm /etc/apt/sources.list
-RUN echo "deb http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
 
 # goreman build
 RUN mkdir -p /builds && mkdir -p /builds/goreman \
@@ -54,8 +54,8 @@ FROM arm32v7/httpd:2.4.33
 # A better approach will be to build static version of aria2.
 
 RUN rm /etc/apt/sources.list
-RUN echo "deb http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
-RUN echo "deb http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian-security jessie/updates main" >> /etc/apt/sources.list.d/jessie.list
+RUN echo "deb [trusted=yes] http://archive.debian.org/debian jessie main" >> /etc/apt/sources.list.d/jessie.list
 
 # download aria2 dependendies
 RUN apt-get update && apt-get install -y --no-install-recommends \
