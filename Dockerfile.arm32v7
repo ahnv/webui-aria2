@@ -6,7 +6,7 @@ RUN mkdir -p /builds && mkdir -p /builds/aria2c \
     && export DEBIAN_FRONTEND=noninteractive \
     && apt-get install -y curl git \
     make g++ libssl-dev nettle-dev libgmp-dev libssh2-1-dev libc-ares-dev libxml2-dev zlib1g-dev libsqlite3-dev pkg-config libxml2-dev libcppunit-dev autoconf automake autotools-dev autopoint libtool openssl \
-    && ARIA2_VERSION="1.35.0" \
+    && ARIA2_VERSION="1.37.0" \
     && mkdir aria_build && cd aria_build \
     && curl -L https://github.com/aria2/aria2/releases/download/release-"$ARIA2_VERSION"/aria2-"$ARIA2_VERSION".tar.gz > aria2.tar.gz \
     && tar -xzf aria2.tar.gz \
@@ -24,6 +24,7 @@ FROM golang:1.17-buster AS go-builder
 
 # goreman build
 RUN mkdir -p /builds && mkdir -p /builds/goreman \
+    && cd /builds/goreman \
     && GOPATH=`pwd` go install github.com/mattn/goreman@latest
 
 RUN mkdir -p /builds && mkdir -p /builds/gosu \
